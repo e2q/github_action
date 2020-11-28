@@ -31,7 +31,10 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install git make sdcc
+        sudo apt-get install git make sdcc
         sudo apt-get clean
+        sudo apt-get install python3 python3-pip
+        sudo apt-get install python3 python3-pip
         sudo apt-get install python3 python3-pip
         pip3 install nrfutil
         wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 # 下载GCC
