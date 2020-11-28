@@ -38,6 +38,8 @@ jobs:
         tar xf gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 # 解压gcc
         mv gcc-arm-none-eabi-7-2018-q2-update/ ~/.local/ # 将GCC移动到用户目录
         rm gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 # 删除压缩包
+        git clone https://github.com/lovesugarxyz/nrf52-keyboard # 克隆源码
+        cd nrf52-keyboard
         
     - name: Ngrok connection to actions
       uses: P3TERX/ssh2actions@main
