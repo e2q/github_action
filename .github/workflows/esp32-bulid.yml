@@ -1,0 +1,92 @@
+name: esp32 build
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      ngrok_ssh:
+        description: 'Ngrok to Actions'
+        required: false
+        default: 'false'
+      tmate_ssh:
+        description: 'Tmate to Actions'
+        required: false
+        default: 'false'
+#  schedule:
+#    - cron: 0 8 * * 5
+  
+env:
+  REPO_URL: https://github.com/lovesugarxyz/MK32
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    
+    steps:
+    
+    - name: Checkout
+      uses: actions/checkout@main
+     
+    - name: Install prerequisites
+      run: |
+        sudo apt-get update
+        sudo apt-get install git wget flex bison gperf python python-pip python-setuptools cmake ninja-build ccache libffi-dev libssl-dev dfu-util
+        sudo apt-get clean
+        sudo apt-get install python3 python3-pip python3-setuptools
+        
+    - name: Get ESP-IDF
+      run: |
+        mkdir -p ~/esp
+        cd ~/esp
+        git clone -b v4.1 --recursive https://github.com/espressif/esp-idf.git
+    - name: Set up the tools
+      run: |
+        cd ~/esp/esp-idf
+        ./install.sh
+        
+    - name: Git MK32
+      run: |
+        cd ~/esp
+        git clone $REPO_URL
+         
+    - name: Set up the environment variables and Compile
+      run: |
+        cd ~/esp
+        . $HOME/esp/esp-idf/export.sh
+        cd ~/esp/MK32
+        make -j1
+        
+    - name: Ngrok connection to actions
+      uses: P3TERX/ssh2actions@main
+      if: (github.event.inputs.ngrok_ssh == 'true')
+      with:
+        mode: ngrok
+      env:
+        # After sign up on the https://ngrok.com
+        # You can find this token here: https://dashboard.ngrok.com/auth/your-authtoken
+        NGROK_TOKEN: 123456789
+    
+        # ngrok server region [us, eu, au, ap, sa, jp, in] (optional, default: us)
+        # You can find this server region here: https://ngrok.com/docs#global-locations
+        NGROK_REGION: us
+
+        # This password you will use when authorizing via SSH
+        SSH_PASSWORD: 123456789
+        
+    - name: Tmate connection to actions
+      uses: P3TERX/ssh2actions@main
+      if: (github.event.inputs.tmate_ssh == 'true')
+        
+    - name: Collect files
+      run: |
+        cd ~/esp/MK32
+        mkdir upload_files
+        find build/ -name '*.bin' |xargs tar czf upload_files.tgz
+        tar zxvf upload_files.tgz -C upload_files
+        
+    - name: Upload-artifact
+      uses: actions/upload-artifact@main
+      with:
+        name: binfile
+        path: ~/esp/MK32/upload_files
+    
