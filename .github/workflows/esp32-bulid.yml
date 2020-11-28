@@ -30,31 +30,14 @@ jobs:
     - name: Install prerequisites
       run: |
         sudo apt-get update
-        sudo apt-get install git wget flex bison gperf python python-pip python-setuptools cmake ninja-build ccache libffi-dev libssl-dev dfu-util
+        sudo apt-get install git make sdcc
         sudo apt-get clean
-        sudo apt-get install python3 python3-pip python3-setuptools
-        
-    - name: Get ESP-IDF
-      run: |
-        mkdir -p ~/esp
-        cd ~/esp
-        git clone -b v4.1 --recursive https://github.com/espressif/esp-idf.git
-    - name: Set up the tools
-      run: |
-        cd ~/esp/esp-idf
-        ./install.sh
-        
-    - name: Git MK32
-      run: |
-        cd ~/esp
-        git clone $REPO_URL
-         
-    - name: Set up the environment variables and Compile
-      run: |
-        cd ~/esp
-        . $HOME/esp/esp-idf/export.sh
-        cd ~/esp/MK32
-        make -j1
+        sudo apt-get install python3 python3-pip
+        pip3 install nrfutil
+        wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 # 下载GCC
+        tar xf gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 # 解压gcc
+        mv gcc-arm-none-eabi-7-2018-q2-update/ ~/.local/ # 将GCC移动到用户目录
+        rm gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 # 删除压缩包
         
     - name: Ngrok connection to actions
       uses: P3TERX/ssh2actions@main
